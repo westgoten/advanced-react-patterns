@@ -23,10 +23,13 @@ function toggleReducer(state, {type, initialState}) {
   }
 }
 
-function useToggle({initialOn = false, reducer = reducer => reducer} = {}) {
+function useToggle({
+  initialOn = false,
+  modifyReducer = reducer => reducer,
+} = {}) {
   const {current: initialState} = React.useRef({on: initialOn})
   const [state, dispatch] = React.useReducer(
-    reducer(toggleReducer),
+    modifyReducer(toggleReducer),
     initialState,
   )
   const {on} = state
@@ -62,7 +65,7 @@ function App() {
   const [timesClicked, setTimesClicked] = React.useState(0)
   const clickedTooMuch = timesClicked >= 4
 
-  function toggleStateReducer(reducer) {
+  function modifyToggleStateReducer(reducer) {
     return (state, action) => {
       if (action.type === 'toggle' && clickedTooMuch) {
         return state
@@ -72,7 +75,7 @@ function App() {
   }
 
   const {on, getTogglerProps, getResetterProps} = useToggle({
-    reducer: toggleStateReducer,
+    modifyReducer: modifyToggleStateReducer,
   })
 
   return (
