@@ -43,7 +43,7 @@ function useToggle({
   React.useEffect(() => {
     if (isOnControlled && !onChange) {
       console.warn(
-        'Warning: Failed prop type: You provided a `on` prop to a Toggle without an `onChange` handler. This will render a read-only Toggle. If the Toggle should be mutable use `onChange`.',
+        'Warning: Failed prop type: You provided a `on` prop to useToggle without an `onChange` handler. This will render a read-only toggle. If the toggle should be mutable use `onChange`.',
       )
     }
   }, [isOnControlled, onChange])
