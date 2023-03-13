@@ -37,8 +37,16 @@ function useToggle({
   const {current: initialState} = React.useRef({on: initialOn})
   const [state, dispatch] = React.useReducer(reducer, initialState)
   // 🐨 determine whether on is controlled and assign that to `onIsControlled`
-  const isOnControlled = controlledOn !== undefined
+  const isOnControlled = controlledOn !== undefined && controlledOn !== null
   const on = isOnControlled ? controlledOn : state.on
+
+  React.useEffect(() => {
+    if (isOnControlled && !onChange) {
+      console.warn(
+        'Warning: Failed prop type: You provided a `on` prop to a Toggle without an `onChange` handler. This will render a read-only Toggle. If the Toggle should be mutable use `onChange`.',
+      )
+    }
+  }, [isOnControlled, onChange])
 
   // make these call `dispatchWithOnChange` instead
   const dispatchWithOnChange = action => {
