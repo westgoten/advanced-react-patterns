@@ -28,6 +28,31 @@ function toggleReducer(state, {type, initialState}) {
   }
 }
 
+function useControlledComponentWarning(
+  isControlled,
+  hasOnChange,
+  controlPropName,
+  componentName,
+) {
+  const wasControlled = React.useRef(isControlled)
+
+  React.useEffect(() => {
+    if (isControlled && !hasOnChange) {
+      console.warn(
+        `Warning: Failed prop type: You provided a '${controlPropName}' prop to ${componentName} without an 'onChange' handler. This will render a read-only ${componentName}. If the ${componentName} should be mutable use 'onChange'.`,
+      )
+    }
+  }, [isControlled, hasOnChange, controlPropName, componentName])
+
+  React.useEffect(() => {
+    if (wasControlled.current !== isControlled) {
+      console.warn(
+        `Warning: A component is changing an ${componentName} from controlled to uncontrolled or vice-versa, which should not happen. Decide between using a controlled or uncontrolled ${componentName} for the lifetime of the component.`,
+      )
+    }
+  }, [isControlled, componentName])
+}
+
 function useToggle({
   initialOn = false,
   reducer = toggleReducer,
@@ -38,25 +63,14 @@ function useToggle({
   const [state, dispatch] = React.useReducer(reducer, initialState)
   // 🐨 determine whether on is controlled and assign that to `onIsControlled`
   const isOnControlled = controlledOn !== undefined && controlledOn !== null
-  const previousIsOnControlled = React.useRef(isOnControlled)
   const on = isOnControlled ? controlledOn : state.on
 
-  React.useEffect(() => {
-    if (isOnControlled && !onChange) {
-      console.warn(
-        'Warning: Failed prop type: You provided a `on` prop to useToggle without an `onChange` handler. This will render a read-only toggle. If the toggle should be mutable use `onChange`.',
-      )
-    }
-  }, [isOnControlled, onChange])
-
-  React.useEffect(() => {
-    if (previousIsOnControlled.current !== isOnControlled) {
-      console.warn(
-        'Warning: A component is changing an useToggle from controlled to uncontrolled or vice-versa, which should not happen. Decide between using a controlled or uncontrolled useToggle for the lifetime of the component.',
-      )
-      previousIsOnControlled.current = isOnControlled
-    }
-  }, [isOnControlled])
+  useControlledComponentWarning(
+    isOnControlled,
+    Boolean(onChange),
+    'on',
+    'useToggle',
+  )
 
   // make these call `dispatchWithOnChange` instead
   const dispatchWithOnChange = action => {
