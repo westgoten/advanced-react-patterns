@@ -28,6 +28,8 @@ function toggleReducer(state, {type, initialState}) {
   }
 }
 
+const isProd = process.env.NODE_ENV === 'production'
+
 function useControlledComponentWarning(
   isControlled,
   hasOnChange,
@@ -37,7 +39,7 @@ function useControlledComponentWarning(
   const wasControlled = React.useRef(isControlled)
 
   React.useEffect(() => {
-    if (isControlled && !hasOnChange) {
+    if (isControlled && !hasOnChange && !isProd) {
       console.warn(
         `Warning: Failed prop type: You provided a '${controlPropName}' prop to ${componentName} without an 'onChange' handler. This will render a read-only ${componentName}. If the ${componentName} should be mutable use 'onChange'.`,
       )
@@ -45,7 +47,7 @@ function useControlledComponentWarning(
   }, [isControlled, hasOnChange, controlPropName, componentName])
 
   React.useEffect(() => {
-    if (wasControlled.current !== isControlled) {
+    if (wasControlled.current !== isControlled && !isProd) {
       console.warn(
         `Warning: A component is changing an ${componentName} from controlled to uncontrolled or vice-versa, which should not happen. Decide between using a controlled or uncontrolled ${componentName} for the lifetime of the component.`,
       )
